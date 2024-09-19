@@ -297,7 +297,20 @@ return {
 				--    -- return only the ones you want to include
 				--    return {1000, 1001}
 				-- end
-				filter_func = nil,
+				filter_func = function(windows, rules)
+					local function predicate(wid)
+						cfg = vim.api.nvim_win_get_config(wid)
+						if not cfg.focusable then
+							return false
+						end
+						return true
+					end
+					local filtered = vim.tbl_filter(predicate, windows)
+
+					local dfilter = require("window-picker.filters.default-window-filter"):new()
+					dfilter:set_config(rules)
+					return dfilter:filter_windows(filtered)
+				end,
 
 				-- following filters are only applied when you are using the default filter
 				-- defined by this plugin. If you pass in a function to "filter_func"
